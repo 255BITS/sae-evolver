@@ -25,8 +25,40 @@ def crossover(parent1, parent2):
     
     file_path = f"{uuid.uuid4()}.yaml"
     child = Candidate(file_path, child_layers)
+    child.layers = crossover_layers(parent1.layers, parent2.layers)
     child.generation = max(parent1.generation, parent2.generation) + 1
     return child
+
+def merge_dicts(*dicts):
+    result = {}
+    for d in dicts:
+        for key, value in d.items():
+            if key in result:
+                result[key].update(value)
+            else:
+                result[key] = value.copy()
+    return result
+
+def random_filter(d, fraction=0.5):
+    keys = list(d.keys())
+    num_to_keep = max(1, int(len(keys) * fraction))
+    keys_to_keep = random.sample(keys, num_to_keep)
+    return {k: d[k] for k in keys_to_keep}
+
+def crossover_layers(a, b):
+    # Create initial dict with the first nested entry
+    first_key = next(iter(a))
+    first_nested_key = next(iter(a[first_key]))
+    init = {first_key: {first_nested_key: a[first_key][first_nested_key]}}
+
+    # Filter out half the nested entries in a and b randomly
+    ahalf = {k: random_filter(v) for k, v in a.items()}
+    bhalf = {k: random_filter(v) for k, v in b.items()}
+
+    # Perform the crossover
+    crossover_ab = merge_dicts(init, ahalf, bhalf)
+
+    return crossover_ab
 
 def mutation(candidate, mutation_rate=0.01, mutation_scale=0.01):
     mutated_layers = {}
@@ -35,7 +67,7 @@ def mutation(candidate, mutation_rate=0.01, mutation_scale=0.01):
             mutation = torch.randn_like(layer) * mutation_scale
             mutated_layers[layer_name] = layer + mutation
         else:
-            mutated_layers[layer_name] = layer.clone()
+            mutated_layers[layer_name] = dict(layer)
     
     candidate.layers = mutated_layers
 
