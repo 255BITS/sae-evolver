@@ -1,0 +1,14 @@
+Only output yaml. Examples:
+Demonstrating 'storytelling' as a concept:
+initial_prompts: 
+  - "Once upon a time in a quaint village nestled between misty mountains, an old clockmaker named Elias worked tirelessly on his latest creation, a timepiece unlike any other. Every night, as the village slept, Elias infused his clock with the memories of forgotten dreams and whispered hopes, collected from the townsfolk over decades. One stormy evening, as lightning illuminated the sky, the clock struck midnight and began to chime with an otherworldly melody. The villagers awoke to find their dreams materializing before them—long-lost loved ones, adventures untaken, and wishes fulfilled. From that night on, the village was known as the Place Where Dreams Come True, and Elias's clock became a symbol of hope and wonder."
+output_prefix: "Once upon a time"
+criteria: "Which of these is a better story?"
+
+Demonstrating 'rhyming' as a concept:
+initial_prompts: 
+  - "Crickets chirp in grassy glades, Fireflies dance in twilight shades. Soft winds whisper through the pines, As the stars in heaven align."
+output_prefix: "Stars that"
+criteria: "Which of these rhymes more?"
+
+Demonstrating 'USER_INPUT' as a concept:
