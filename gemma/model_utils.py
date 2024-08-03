@@ -33,7 +33,6 @@ class JumpReLUSAE(nn.Module):
 
 model = None
 tokenizer = None
-sae = None
 
 def lazy_load_model_and_tokenizer():
     global model, tokenizer
@@ -42,12 +41,19 @@ def lazy_load_model_and_tokenizer():
     if tokenizer is None:
         tokenizer = AutoTokenizer.from_pretrained("google/gemma-2-2b")
 
+sae_cache = {}
 def load_sae(target_layer):
+    print("LOAD SAE", target_layer)
+    global sae_cache
+    if target_layer in sae_cache:
+        print("CACHE HIT", target_layer)
+        return sae_cache[target_layer]
     sae, cfg_dict, _ = SAE.from_pretrained(
         release = "gemma-2b-res-jb",
         sae_id = f"blocks.{target_layer}.hook_resid_post",
         device = "cuda:0"
     )
+    sae_cache[target_layer]=sae
     return sae
 
 def process_prompt(prompt, target_layer=6):
@@ -71,5 +77,44 @@ def process_prompt(prompt, target_layer=6):
 
 
 def steer_generate(prefix, layers):
-    return "not implemented"
+    model.reset_hooks()
+    editing_hooks = []
+    position = 5#len(model.to_tokens(prefix))-1
+    for target_layer, value in layers.items():
+        editing_hooks += [(f"blocks.{target_layer}.hook_resid_post", steering_hook(value, target_layer, position))]
+    print(editing_hooks,"HOOK")
+    sampling_kwargs = dict(temperature=1.0, top_p=0.1, freq_penalty=1.0)
+    res = hooked_generate([prefix], editing_hooks, seed=None, **sampling_kwargs)
+  
+    # Print results, removing the ugly beginning of sequence token
+    res_str = model.to_string(res[:, 1:])
+    return res_str
+
+def steering_hook(value, target_layer, position):
+    def _steering_hook(resid_pre, hook):
+        if resid_pre.shape[1] == 1:
+            return
+
+        for idx, coeff in value.items():
+            sae = load_sae(target_layer)
+            steering_vector = sae.W_dec[idx]
+            print("POSITION", position, resid_pre.shape)
+            # using our steering vector and applying the coefficient
+            print("SETTING COEFF", coeff, idx)
+            resid_pre[:, :position - 1, :] += coeff * steering_vector
+    return _steering_hook
+
+def hooked_generate(prompt_batch, fwd_hooks=[], seed=None, **kwargs):
+    if seed is not None:
+        torch.manual_seed(seed)
+
+    with model.hooks(fwd_hooks=fwd_hooks):
+        tokenized = model.to_tokens(prompt_batch)
+        result = model.generate(
+            stop_at_eos=False,  # avoids a bug on MPS
+            input=tokenized,
+            max_new_tokens=50,
+            do_sample=True,
+            **kwargs)
+    return result
 
