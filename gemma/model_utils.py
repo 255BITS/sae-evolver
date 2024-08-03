@@ -86,3 +86,7 @@ def process_prompt(prompt, target_layer=20):
 
     return values, indices
 
+
+def steer_generate(prefix, layers):
+    return "not implemented"
+

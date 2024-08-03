@@ -4,19 +4,30 @@ import logging
 import random
 import yaml
 from pathlib import Path
+from gemma.model_utils import process_prompt, steer_generate
 
 # Import your evolution functions here
 from sae_evolution import (
     Candidate, load_candidate, run_evolution, breed, mutation, crossover
 )
 
-async def compare_candidates(candidate1, candidate2, criteria):
-    # This is a placeholder for the actual comparison logic
-    # In a real scenario, you might want to use an LLM or some other method to compare candidates
+candidate_cache = {}
+
+def generate_content(candidate, prefix):
+    global candidate_cache
+    if candidate in candidate_cache:
+        return candidate_cache[candidate]
+    candidate_cache[candidate] = steer_generate(prefix, candidate.layers)
+    return candidate_cache[candidate]
+
+async def compare_candidates(candidate1, candidate2, criteria, output_prefix):
+    gen1 = generate_content(candidate1, output_prefix)
+    gen2 = generate_content(candidate2, output_prefix)
     print(f"Comparing candidates based on: {criteria}")
-    print(f"Candidate 1: {candidate1.file_path}")
-    print(f"Candidate 2: {candidate2.file_path}")
-    result = input("Enter 1 if Candidate 1 is better, 2 if Candidate 2 is better: ")
+    print(f"Candidate 1: ```\n{gen1}\n```")
+    print(f"Candidate 2: ```\n{gen2}\n```")
+    #TODO
+    result = input("Enter 1 if Candidate 1 better matches the criteria, else 2 if Candidate 2 better matches the critera: ")
     return 1 if result == "1" else -1
 
 async def main(args):
@@ -33,11 +44,17 @@ async def main(args):
     # Create initial population TODO
     population = []
     for i in range(args.initial_population):
-        prompt = f"{output_prefix} {random.choice(initial_prompts)}"
-        file_path = f"model_{i}.yaml"
-        # Here you would generate an initial model based on the prompt
-        # For now, we'll just create a dummy Candidate
-        candidate = Candidate(file_path, {20:{10004: 300}}, initial_population=True)
+        prompt = random.choice(initial_prompts)
+
+        #TODO
+        target_layer = 20#random.randint(19, 26)
+        _, indices = process_prompt(prompt, target_layer)
+        indices = random.sample(indices[0].tolist(), 3)
+        indices_map = {key: random.randint(50, 350) for key in indices}
+
+        layers = {target_layer: indices_map}
+        file_path = f"model_{i}.yaml" #TODO save
+        candidate = Candidate(file_path, layers, initial_population=True)
         population.append(candidate)
     
     for cycle in range(args.cycles):
@@ -47,7 +64,7 @@ async def main(args):
             args.elite,
             args.population,
             0.1,  # mutation_rate
-            lambda c1, c2: compare_candidates(c1, c2, criteria)
+            lambda c1, c2: compare_candidates(c1, c2, criteria, output_prefix)
         )
     
     logging.info("Evolution complete. Final population:")
