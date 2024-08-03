@@ -129,10 +129,6 @@ async def run_evolution(population, elite_size, population_size, mutation_rate, 
     logging.info("After sorting")
     log_candidates(population)
     
-    for tokill in population[elite_size:]:
-        if not tokill.initial_population:
-            os.remove(tokill.file_path)
-    
     return population[:elite_size]
 
 def log_candidates(population):

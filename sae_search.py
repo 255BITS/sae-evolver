@@ -22,7 +22,7 @@ async def compare_candidates(candidate1, candidate2, criteria):
 async def main(args):
     logging.basicConfig(level=logging.INFO)
     
-   random.seed(args.seed)
+    random.seed(args.seed)
     # Load criteria file
     with open(args.criteria, 'r') as f:
         criteria_data = yaml.safe_load(f)
@@ -65,8 +65,8 @@ if __name__ == "__main__":
     parser.add_argument("--cycles", type=int, default=10, help="Number of evolution cycles")
     parser.add_argument("--elite", type=int, default=5, help="Number of elite candidates")
     parser.add_argument("--population", type=int, default=15, help="Population size")
+    parser.add_argument("--initial-population", type=int, default=2, help="Initial population size")
     parser.add_argument("--criteria", type=str, default="examples/sports_coach.yaml", help="yml file created from metaprompt.py. See examples")
-    parser.add_argument("--output-prefix", type=str, default="Let me tell you a story about Bob. Bob", help="Prefix for output prompts")
-    
+
     args = parser.parse_args()
     asyncio.run(main(args))
