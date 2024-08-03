@@ -1,4 +1,6 @@
 from transformers import AutoModelForCausalLM, AutoTokenizer
+from sae_lens import SAE
+from transformer_lens import HookedTransformer
 from huggingface_hub import hf_hub_download
 import numpy as np
 import torch
@@ -29,17 +31,6 @@ class JumpReLUSAE(nn.Module):
         recon = self.decode(acts)
         return recon
 
-def gather_residual_activations(model, target_layer, inputs):
-    target_act = None
-    def gather_target_act_hook(mod, inputs, outputs):
-        nonlocal target_act  # make sure we can modify the target_act from the outer scope
-        target_act = outputs[0]
-        return outputs
-    handle = model.model.layers[target_layer].register_forward_hook(gather_target_act_hook)
-    _ = model.forward(inputs)
-    handle.remove()
-    return target_act
-
 model = None
 tokenizer = None
 sae = None
@@ -47,44 +38,36 @@ sae = None
 def lazy_load_model_and_tokenizer():
     global model, tokenizer
     if model is None:
-        model = AutoModelForCausalLM.from_pretrained(
-            "google/gemma-2-2b",
-            device_map='auto',
-        ).cuda()
+        model = HookedTransformer.from_pretrained("gemma-2b", device = 'cuda:0')
     if tokenizer is None:
         tokenizer = AutoTokenizer.from_pretrained("google/gemma-2-2b")
 
 def load_sae(target_layer):
-    path_to_params = hf_hub_download(
-        repo_id="google/gemma-scope-2b-pt-res",
-        filename=f"layer_{target_layer}/width_16k/average_l0_71/params.npz",
-        force_download=False,
+    sae, cfg_dict, _ = SAE.from_pretrained(
+        release = "gemma-2b-res-jb",
+        sae_id = f"blocks.{target_layer}.hook_resid_post",
+        device = "cuda:0"
     )
-    params = np.load(path_to_params)
-    pt_params = {k: torch.from_numpy(v).to("cuda") for k, v in params.items()}
-    sae = JumpReLUSAE(params['W_enc'].shape[0], params['W_enc'].shape[1])
-    sae.load_state_dict(pt_params)
-    sae.cuda()
     return sae
 
-def process_prompt(prompt, target_layer=20):
+def process_prompt(prompt, target_layer=6):
     # Lazy load the model, tokenizer, and sae
     lazy_load_model_and_tokenizer()
     sae = load_sae(target_layer)
 
-    # Tokenize the input prompt
-    inputs = tokenizer.encode(prompt, return_tensors="pt", add_special_tokens=True).cuda()
+    sv_logits, cache = model.run_with_cache(prompt, prepend_bos=True)
+    hook_point = sae.cfg.hook_name
+    sv_feature_acts = sae.encode(cache[hook_point])
 
-    # Gather residual activations from the specified layer
-    target_act = gather_residual_activations(model, target_layer, inputs)
+    sae_out = sae.decode(sv_feature_acts)
 
-    # Encode the activations using JumpReLUSAE encoder
-    sae_acts = sae.encode(target_act.to(torch.float32))
+    topk_values, topk_indices = torch.topk(sv_feature_acts, 3)
 
-    # Get the max(-1) values and indices
-    values, indices = sae_acts.max(-1)
+    # Flatten the values and indices
+    topk_values = topk_values.flatten()
+    topk_indices = topk_indices.flatten()
 
-    return values, indices
+    return topk_values, topk_indices
 
 
 def steer_generate(prefix, layers):
