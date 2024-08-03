@@ -9,7 +9,7 @@ torch.set_grad_enabled(False) # avoid blowing up mem
 model = AutoModelForCausalLM.from_pretrained(
     "google/gemma-2-2b",
     device_map='auto',
-)
+).cuda()
 class JumpReLUSAE(nn.Module):
   def __init__(self, d_model, d_sae):
     # Note that we initialise these to zeros because we're loading in pre-trained weights.
@@ -51,7 +51,7 @@ prompt = "Would you be able to travel through time using a wormhole?"
 
 tokenizer =  AutoTokenizer.from_pretrained("google/gemma-2-2b")
 # Use the tokenizer to convert it to tokens. Note that this implicitly adds a special "Beginning of Sequence" or <bos> token to the start
-inputs = tokenizer.encode(prompt, return_tensors="pt", add_special_tokens=True)
+inputs = tokenizer.encode(prompt, return_tensors="pt", add_special_tokens=True).cuda()
 print(inputs)
 # Pass it in to the model and generate text
 outputs = model.generate(input_ids=inputs, max_new_tokens=50)
@@ -64,9 +64,10 @@ path_to_params = hf_hub_download(
     force_download=False,
 )
 params = np.load(path_to_params)
-pt_params = {k: torch.from_numpy(v).to("mps") for k, v in params.items()}
+pt_params = {k: torch.from_numpy(v).to("cuda") for k, v in params.items()}
 sae = JumpReLUSAE(params['W_enc'].shape[0], params['W_enc'].shape[1])
 sae.load_state_dict(pt_params)
+sae.cuda()
 sae_acts = sae.encode(target_act.to(torch.float32))
 recon = sae.decode(sae_acts)
 print("var", 1 - torch.mean((recon[:, 1:] - target_act[:, 1:].to(torch.float32)) **2) / (target_act[:, 1:].to(torch.float32).var()))
