@@ -22,16 +22,18 @@ async def compare_candidates(candidate1, candidate2, criteria):
 async def main(args):
     logging.basicConfig(level=logging.INFO)
     
-    random.seed(args.seed)
-    
-    # Load initial prompts
-    with open(args.initial_prompt_file, 'r') as f:
-        initial_prompts = f.read().splitlines()
-    
+   random.seed(args.seed)
+    # Load criteria file
+    with open(args.criteria, 'r') as f:
+        criteria_data = yaml.safe_load(f)
+        initial_prompts = criteria_data['initial_prompts']
+        criteria = criteria_data['criteria']
+        output_prefix = criteria_data['output_prefix']
+
     # Create initial population TODO
     population = []
     for i in range(args.initial_population):
-        prompt = f"{args.output_prefix} {random.choice(initial_prompts)}"
+        prompt = f"{output_prefix} {random.choice(initial_prompts)}"
         file_path = f"model_{i}.yaml"
         # Here you would generate an initial model based on the prompt
         # For now, we'll just create a dummy Candidate
@@ -45,7 +47,7 @@ async def main(args):
             args.elite,
             args.population,
             0.1,  # mutation_rate
-            lambda c1, c2: compare_candidates(c1, c2, args.criteria)
+            lambda c1, c2: compare_candidates(c1, c2, criteria)
         )
     
     logging.info("Evolution complete. Final population:")
@@ -63,9 +65,7 @@ if __name__ == "__main__":
     parser.add_argument("--cycles", type=int, default=10, help="Number of evolution cycles")
     parser.add_argument("--elite", type=int, default=5, help="Number of elite candidates")
     parser.add_argument("--population", type=int, default=15, help="Population size")
-    parser.add_argument("--initial_population", type=int, default=2, help="Initial population size")
-    parser.add_argument("--criteria", type=str, default="Which one of these is happier?", help="Comparison criteria")
-    parser.add_argument("--initial-prompt-file", type=str, required=True, help="File containing initial prompts")
+    parser.add_argument("--criteria", type=str, default="examples/sports_coach.yaml", help="yml file created from metaprompt.py. See examples")
     parser.add_argument("--output-prefix", type=str, default="Let me tell you a story about Bob. Bob", help="Prefix for output prompts")
     
     args = parser.parse_args()

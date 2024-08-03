@@ -1,0 +1,4 @@
+initial_prompts: 
+  - "A fantastical metropolis sprawls across a crescent moon, its skyline a tapestry of spires and grand architecture that seems to defy gravity. The city is painted in hues of iridescent blue and purple, suspended in a sky that blends seamlessly from twilight's last gasp to the inky blackness of space. Nebulae act as ethereal clouds, glowing softly around the city's edges."
+output_prefix: "Floating gardens of"
+criteria: "Which description would you like to see visualized?"
