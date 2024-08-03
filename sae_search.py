@@ -30,12 +30,12 @@ async def main(args):
     
     # Create initial population TODO
     population = []
-    for i in range(args.population):
+    for i in range(args.initial_population):
         prompt = f"{args.output_prefix} {random.choice(initial_prompts)}"
         file_path = f"model_{i}.yaml"
         # Here you would generate an initial model based on the prompt
         # For now, we'll just create a dummy Candidate
-        candidate = Candidate(file_path, {}, initial_population=True)
+        candidate = Candidate(file_path, {20:{10004: 300}}, initial_population=True)
         population.append(candidate)
     
     for cycle in range(args.cycles):
@@ -43,10 +43,8 @@ async def main(args):
         population = await run_evolution(
             population,
             args.elite,
-            args.elite,  # num_parents = elite_size
             args.population,
             0.1,  # mutation_rate
-            "output",  # output_path
             lambda c1, c2: compare_candidates(c1, c2, args.criteria)
         )
     
@@ -65,6 +63,7 @@ if __name__ == "__main__":
     parser.add_argument("--cycles", type=int, default=10, help="Number of evolution cycles")
     parser.add_argument("--elite", type=int, default=5, help="Number of elite candidates")
     parser.add_argument("--population", type=int, default=15, help="Population size")
+    parser.add_argument("--initial_population", type=int, default=2, help="Initial population size")
     parser.add_argument("--criteria", type=str, default="Which one of these is happier?", help="Comparison criteria")
     parser.add_argument("--initial-prompt-file", type=str, required=True, help="File containing initial prompts")
     parser.add_argument("--output-prefix", type=str, default="Let me tell you a story about Bob. Bob", help="Prefix for output prompts")

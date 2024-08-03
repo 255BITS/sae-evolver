@@ -1,7 +1,9 @@
+import os
 import logging
 import random
 import torch
 import uuid
+import yaml
 from pathlib import Path
 
 class Candidate:
@@ -21,7 +23,7 @@ class Candidate:
 def crossover(parent1, parent2):
     child_layers = {}
     
-    file_path = str(Path("output_path") / f"{uuid.uuid4()}.yaml")
+    file_path = f"{uuid.uuid4()}.yaml"
     child = Candidate(file_path, child_layers)
     child.generation = max(parent1.generation, parent2.generation) + 1
     return child
@@ -38,9 +40,28 @@ def mutation(candidate, mutation_rate=0.01, mutation_scale=0.01):
     candidate.layers = mutated_layers
 
 def save_candidate(candidate, file_path):
-    pass #TODO saveme
+    # Ensure the directory 'candidates' exists
+    os.makedirs('candidates', exist_ok=True)
+    
+    # Construct the full file path
+    full_path = os.path.join('candidates', file_path)
+    
+    # Save the candidate.layers map to the specified file in YAML format
+    with open(full_path, 'w') as file:
+        yaml.dump(candidate.layers, file)
 
-def breed(parents, mutation_rate, output_path):
+def load_candidate(file_name):
+    # Construct the full file path
+    full_path = os.path.join('candidates', file_name)
+    
+    # Load the YAML file into a dictionary
+    with open(full_path, 'r') as file:
+        layers = yaml.safe_load(file)
+    
+    return Candidate(layers=layers, initial_population=True)
+
+def breed(parents, mutation_rate):
+    print("breed", parents)
     offspring = crossover(parents[0], parents[1])
     mutation(offspring, mutation_rate)
     
@@ -49,27 +70,24 @@ def breed(parents, mutation_rate, output_path):
     
     return offspring
 
-def load_candidate(file_path):
-    layers = {}
-    # TODO load
-    return Candidate(file_path, layers, initial_population=True)
+def selection(population):
+    return random.sample(population, 2)
 
 # You can keep the evolve function mostly the same, just update it to use the new breed function
-def evolve(population, population_size, num_parents, mutation_rate, output_path, children_count=1):
+def evolve(population, population_size, mutation_rate,):
     seed_population = list(population)
     while len(population) < population_size:
-        parents = selection(seed_population, num_parents)
-        for i in range(min(children_count, population_size - len(population))):
-            offspring = breed(parents, mutation_rate, output_path)
-            population.append(offspring)
+        parents = selection(seed_population)
+        offspring = breed(parents, mutation_rate)
+        population.append(offspring)
 
     return population
 
-async def run_evolution(population, elite_size, num_parents, population_size, mutation_rate, output_path, evaluation_criteria):
+async def run_evolution(population, elite_size, population_size, mutation_rate, evaluation_criteria):
     logging.info("Before evolve")
     log_candidates(population)
     
-    population = evolve(population, population_size, num_parents, mutation_rate, output_path)
+    population = evolve(population, population_size, mutation_rate)
 
     logging.info("Before sorting")
     log_candidates(population)
