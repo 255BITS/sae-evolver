@@ -1,4 +1,4 @@
 initial_prompts: 
-  - "A fantastical metropolis sprawls across a crescent moon, its skyline a tapestry of spires and grand architecture that seems to defy gravity. The city is painted in hues of iridescent blue and purple, suspended in a sky that blends seamlessly from twilight's last gasp to the inky blackness of space. Nebulae act as ethereal clouds, glowing softly around the city's edges."
-output_prefix: ""
-criteria: "Which is a better prompt for stable diffusion?"
+  - "Nebula: A celestial tapestry of sapphire and amethyst hues, with glittering stardust and iridescent gases that shimmer like the moon's gentle kiss on a midsummer night. In its heart, a swirling vortex of creativity and destruction, birthing new stars and worlds, as the cosmos whispers ancient secrets to those who dare to listen."
+output_prefix: "Person: "
+criteria: "Which of these descriptions paints a more vivid picture?"
