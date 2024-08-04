@@ -22,7 +22,6 @@ def main():
         prompt = prompt_format.replace("USER_INPUT", user_input)
 
         torch.cuda.manual_seed_all(seed)
-        torch.use_deterministic_algorithms(True)
         output = steer_generate(prompt, {})
         print("Generated output without steering:")
         print("---")
@@ -30,7 +29,6 @@ def main():
         print("---")
 
         torch.cuda.manual_seed_all(seed)
-        torch.use_deterministic_algorithms(True)
         output = steer_generate(prompt, data.layers)
         
         print("Generated output with steering:")
