@@ -122,7 +122,7 @@ def steer_generate(prefix, layers, special_tokens=True):
         handles.append(handle)
     result = model.generate(**inputs, do_sample=True, temperature=1.0, max_new_tokens=128)
     result_tokens = result[0]
-    if not add_special_tokens:
+    if not special_tokens:
         result_tokens = result_tokens[1:]
     decoded_text = tokenizer.decode(result_tokens)
 
