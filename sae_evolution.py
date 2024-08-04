@@ -64,8 +64,6 @@ def crossover_layers(a, b):
 
 
 def mutation(candidate, mutation_rate=0.01, mutation_scale=0.01, rare_change_rate=0.001):
-    rare_change_rate = 1
-    mutation_rate = 1
     mutated_layers = {}
     
     for layer_name, layer in candidate.layers.items():
