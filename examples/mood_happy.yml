@@ -1,0 +1,4 @@
+initial_prompts: 
+  - "OH MY STARS, I'M SO HAPPY I COULD FLY!!! I just won the most AMAZING prize EVER - a year's supply of my FAVORITE ice cream!!! I'm literally jumping up and down and screaming with JOY!!! Life is just the BEST, and I feel like I'm WALKING ON SUNSHINE!!!"
+output_prefix: "I'm so happy"
+criteria: "Which of these sounds more ecstatically manically happy?"
