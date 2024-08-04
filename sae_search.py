@@ -32,7 +32,7 @@ def generate_content(candidate, prefix):
     candidate.last_gen=candidate_cache[candidate]
     return candidate_cache[candidate]
 
-async def compare_candidates(candidate1, candidate2, criteria, output_prefix):
+async def compare_candidates(candidate1, candidate2, criteria, output_prefix, model):
     print("Generating candidate 1")
     gen1 = generate_content(candidate1, output_prefix)
     print("Generating candidate 2")
@@ -49,7 +49,7 @@ async def compare_candidates(candidate1, candidate2, criteria, output_prefix):
                 "content": prompt,
             }
         ],
-        model="llama-3.1-70b-versatile",
+        model=model,
         max_tokens=128
     )
     result = chat_completion.choices[0].message.content
@@ -92,7 +92,7 @@ async def main(args):
             args.elite,
             args.population,
             0.1,  # mutation_rate
-            lambda c1, c2: compare_candidates(c1, c2, criteria, output_prefix)
+            lambda c1, c2: compare_candidates(c1, c2, criteria, output_prefix, args.model)
         )
         
         out_population = [candidate.to_dict() for candidate in population]
@@ -118,6 +118,7 @@ if __name__ == "__main__":
     parser.add_argument("--population", type=int, default=15, help="Population size")
     parser.add_argument("--initial-population", type=int, default=2, help="Initial population size")
     parser.add_argument("--criteria", type=str, default="examples/sports_coach.yaml", help="yml file created from metaprompt.py. See examples")
+    parser.add_argument("--model", type=str, default="llama-3.1-70b-versatile", help="Which groq model to use")
 
     args = parser.parse_args()
     asyncio.run(main(args))
