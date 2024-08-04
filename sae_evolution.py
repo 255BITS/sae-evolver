@@ -96,7 +96,7 @@ def save_candidate(candidate, file_path):
     
     # Save the candidate.layers map to the specified file in YAML format
     with open(full_path, 'w') as file:
-        yaml.dump(candidate.layers, file)
+        yaml.dump(candidate.to_dict(), file)
 
 def load_candidate(file_name):
     # Construct the full file path
@@ -104,9 +104,9 @@ def load_candidate(file_name):
     
     # Load the YAML file into a dictionary
     with open(full_path, 'r') as file:
-        layers = yaml.safe_load(file)
+        candidate = yaml.safe_load(file)
     
-    return Candidate(layers=layers, initial_population=True)
+    return Candidate(layers=candidate['layers'], initial_population=True)
 
 def breed(parents, mutation_rate):
     print("breed", parents)
