@@ -78,7 +78,7 @@ async def main(args):
         target_layer = 20#random.randint(19, 26)
         _, indices = process_prompt(prompt, target_layer)
         indices = random.sample(indices[0].tolist(), 3)
-        indices_map = {key: random.randint(50, 200) for key in indices}
+        indices_map = {key: random.randint(args.coeff_start, args.coeff_end) for key in indices}
 
         layers = {target_layer: indices_map}
         file_path = f"model_{i}.yaml" #TODO save
@@ -109,6 +109,8 @@ if __name__ == "__main__":
     parser.add_argument("--seed", type=int, default=None, help="Random seed")
     parser.add_argument("--cycles", type=int, default=10, help="Number of evolution cycles")
     parser.add_argument("--elite", type=int, default=5, help="Number of elite candidates")
+    parser.add_argument("--coeff-start", type=int, default=10, help="Start of coefficient range")
+    parser.add_argument("--coeff-end", type=int, default=50, help="End of coefficient range")
     parser.add_argument("--population", type=int, default=15, help="Population size")
     parser.add_argument("--initial-population", type=int, default=2, help="Initial population size")
     parser.add_argument("--criteria", type=str, default="examples/sports_coach.yaml", help="yml file created from metaprompt.py. See examples")
