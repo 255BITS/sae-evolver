@@ -15,16 +15,13 @@ def main():
     while(True):
         user_input = input("Enter your input: ")
 
-        # Load candidate layers from the YAML file
-        layers = {key: value for key, value in data.layers.items() if isinstance(value, dict)}
-        
-        
-        output = steer_generate(user_input, {})
-        print("Generated output without steering:")
-        print('--', layers)
-        print(output)
+        prompt = "User: "+user_input+"\nGPT:" 
+        #output = steer_generate(prompt, {})
+        #print("Generated output without steering:")
+        #print('--', data.layers)
+        #print(output)
 
-        output = steer_generate(user_input, layers)
+        output = steer_generate(prompt, data.layers)
         
         print("Generated output with steering:")
         print(output)

@@ -33,9 +33,9 @@ def generate_content(candidate, prefix):
     return candidate_cache[candidate]
 
 async def compare_candidates(candidate1, candidate2, criteria, output_prefix, model):
-    print("Generating candidate 1")
+    print("Generating candidate 1", candidate1.layers)
     gen1 = generate_content(candidate1, output_prefix)
-    print("Generating candidate 2")
+    print("Generating candidate 2", candidate2.layers)
     gen2 = generate_content(candidate2, output_prefix)
     prompt = (f"Comparing candidates based on: {criteria}")
     prompt += (f"\nCandidate 1: ```\n{gen1}\n```")

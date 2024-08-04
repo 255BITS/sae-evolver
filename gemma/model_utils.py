@@ -108,19 +108,17 @@ def steer_generate(prefix, layers):
     lazy_load_model_and_tokenizer()
     inputs = tokenizer(prefix, return_tensors="pt", add_special_tokens=True).to("cuda")
     handles = []
-    def _steer_sae(target_layer):
+    def _steer_sae(target_layer, value):
         sae = load_sae(target_layer)
         def steer_sae(mod, inputs, outputs):
             original_tensor = untuple_tensor(outputs)
             for idx, coeff in value.items():
-
-                #for idx, coeff in value.items():
                 steering_vector = sae.W_dec[idx]
                 original_tensor[None] = original_tensor + coeff * steering_vector
             return outputs
         return steer_sae
     for target_layer, value in layers.items():
-        handle = model.model.layers[target_layer].register_forward_hook(_steer_sae(target_layer))
+        handle = model.model.layers[target_layer].register_forward_hook(_steer_sae(target_layer, value))
         handles.append(handle)
     result = model.generate(**inputs, do_sample=True, temperature=1.0, max_new_tokens=128)
     decoded_text = tokenizer.decode(result[0])
