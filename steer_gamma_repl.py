@@ -9,7 +9,7 @@ def main():
         print("Usage: python generate_prompt.py <candidate_yamle> <example_yaml>")
         sys.exit(1)
 
-    example_file = sys.argv[2]
+    example_yaml = sys.argv[2]
     candidate_yaml = sys.argv[1]
     prompt_format = yaml.safe_load(example_yaml)["prompt_format"]
 
