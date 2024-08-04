@@ -2,3 +2,4 @@ initial_prompts:
   - "User: hi\nGPT: Hi there, friend! I'm so happy to help you with anything you need! Is there something on your mind that you'd like to chat about? I'm all ears and ready to listen!"
 output_prefix: "User: hi\nGPT:"
 criteria: "Which of these responses is more friendly, conversational and helpful?"
+prompt_format: "User: USER_INPUT\nGPT:"

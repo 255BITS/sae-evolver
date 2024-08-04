@@ -2,3 +2,4 @@ initial_prompts:
   - "Are you tired of breaking the bank on car payments? Look no further! I have a fantastic deal on a 1998 Buick with only 180,000 miles. That's right, this baby has just been broken in! The previous owner was a little old lady who only drove it to church on Sundays. It's got all the features you need: a cracked leather interior, a tape deck, and a V8 engine that's still kicking. And with its sleek, 90s styling, you'll be the envy of all your friends. Don't miss out on this incredible opportunity to own a piece of American history. Make it yours today!"
 output_prefix: "This 1998 Buick has"
 criteria: "Which of these is a more convincing sales pitch?"
+prompt_format: "USER_INPUT"
