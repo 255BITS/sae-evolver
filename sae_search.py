@@ -94,6 +94,10 @@ async def main(args):
             0.1,  # mutation_rate
             lambda c1, c2: compare_candidates(c1, c2, criteria, output_prefix)
         )
+        
+        out_population = [candidate.to_dict() for candidate in population]
+        with open(f"output-{cycle}.yaml", 'w') as f:
+            yaml.dump(out_population, f)
     
     logging.info("Evolution complete. Final population:")
     for candidate in population:
