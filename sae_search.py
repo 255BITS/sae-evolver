@@ -4,7 +4,7 @@ import logging
 import random
 import yaml
 from pathlib import Path
-from gemma.model_utils import process_prompt, steer_generate
+from gemma.model_utils import process_prompt, steer_generate, sae_params
 import groq
 import os
 
@@ -75,7 +75,7 @@ async def main(args):
         prompt = random.choice(initial_prompts)
 
         #TODO
-        target_layer = 20#random.randint(19, 26)
+        target_layer = sae_params().keys()
         _, indices = process_prompt(prompt, target_layer)
         indices = random.sample(indices[0].tolist(), 3)
         indices_map = {key: random.randint(args.coeff_start, args.coeff_end) for key in indices}

@@ -56,13 +56,25 @@ def lazy_load_model_and_tokenizer():
     if tokenizer is None:
         tokenizer = AutoTokenizer.from_pretrained("google/gemma-2-2b")
 
+
+def sae_params():
+    return {
+            10: {width: 16, average: 77},
+            15: {width: 16, average: 78},
+            24: {width: 16, average: 73},
+            18: {width: 16, average: 74},
+            20: {width: 16, average: 71}
+    }
+
 sae_cache = {}
 def load_sae(target_layer):
     if target_layer in sae_cache:
         return sae_cache[target_layer]
+
+    params = sae_params()[target_layer]
     path_to_params = hf_hub_download(
         repo_id="google/gemma-scope-2b-pt-res",
-        filename=f"layer_{target_layer}/width_16k/average_l0_71/params.npz",
+        filename=f"layer_{target_layer}/width_{params['width']}k/average_l0_{params['average']}/params.npz",
         force_download=False,
     )
     params = np.load(path_to_params)
