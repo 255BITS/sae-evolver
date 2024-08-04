@@ -62,15 +62,31 @@ def crossover_layers(a, b):
 
     return crossover_ab
 
-def mutation(candidate, mutation_rate=0.01, mutation_scale=0.01):
+
+def mutation(candidate, mutation_rate=0.01, mutation_scale=0.01, rare_change_rate=0.001):
+    rare_change_rate = 1
+    mutation_rate = 1
     mutated_layers = {}
+    
     for layer_name, layer in candidate.layers.items():
-        if random.random() < mutation_rate:
-            pass#TODO
-            #mutation = torch.randn_like(layer) * mutation_scale
-            #mutated_layers[layer_name] = layer + mutation
-        else:
-            mutated_layers[layer_name] = dict(layer)
+        mutated_layer = {}
+        for neuron_id, weight in layer.items():
+            if random.random() < mutation_rate:
+                # Randomize weight coefficient
+                mutated_weight = weight + random.gauss(0, mutation_scale)
+                mutated_layer[neuron_id] = mutated_weight
+            elif random.random() < rare_change_rate:
+                # Rare chance to drop this neuron
+                continue
+            else:
+                mutated_layer[neuron_id] = weight
+        
+        # Add a random neuron with a small chance
+        if random.random() < rare_change_rate:
+            new_neuron_id = max(layer.keys()) + 1 if layer else 0
+            mutated_layer[new_neuron_id] = random.gauss(0, mutation_scale)
+        
+        mutated_layers[layer_name] = mutated_layer
     
     candidate.layers = mutated_layers
 
