@@ -29,7 +29,6 @@ def generate_content(candidate, prefix):
     if candidate in candidate_cache:
         return candidate_cache[candidate]
     candidate_cache[candidate] = steer_generate(prefix, candidate.layers, special_tokens=False)#+"\n[Sample]:\n"+steer_generate(prefix, candidate.layers, special_tokens=False)
-    print("generated new candidate", candidate_cache[candidate])
     candidate.last_gen=candidate_cache[candidate]
     return candidate_cache[candidate]
 
@@ -54,9 +53,20 @@ async def compare_candidates(candidate1, candidate2, criteria, output_prefix, mo
         max_tokens=128
     )
     result = chat_completion.choices[0].message.content
-    print("--", result)
+    print("Groq chose candidate", result)
 
     return 1 if result == "1" else -1
+
+def render_winner(candidate):
+    # Ensure the 'results' directory exists
+    os.makedirs('results', exist_ok=True)
+    
+    # Construct the HTML content
+    html_content = f"<html>\n<body>\n<pre>{candidate.last_gen}</pre>\n</body>\n</html>"
+    
+    # Write the content to 'results/winner.html'
+    with open('results/winner.html', 'w') as file:
+        file.write(html_content)
 
 async def main(args):
     logging.basicConfig(level=logging.INFO)
@@ -95,6 +105,7 @@ async def main(args):
             0.1,  # mutation_rate
             lambda c1, c2: compare_candidates(c1, c2, criteria, output_prefix, args.model)
         )
+        render_winner(population[0])
         
         out_population = [candidate.to_dict() for candidate in population]
         with open(f"output-{cycle}.yaml", 'w') as f:
