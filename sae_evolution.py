@@ -83,7 +83,8 @@ def mutation(candidate, mutation_rate=0.01, mutation_scale=0.01, rare_change_rat
             new_neuron_id = max(layer.keys()) + 1 if layer else 0
             mutated_layer[new_neuron_id] = random.gauss(0, mutation_scale)
         
-        mutated_layers[layer_name] = mutated_layer
+        if len(mutated_layer.items()) > 0:
+            mutated_layers[layer_name] = mutated_layer
     
     candidate.layers = mutated_layers
 
