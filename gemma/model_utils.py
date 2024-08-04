@@ -91,7 +91,7 @@ def process_prompt(prompt, target_layer=6):
     sae = load_sae(target_layer)
 
 
-    inputs = tokenizer.encode(prompt, return_tensors="pt", add_special_tokens=True).cuda()
+    inputs = tokenizer.encode(prompt, return_tensors="pt", add_special_tokens=False).cuda()
 
     target_act = gather_residual_activations(model, target_layer, inputs)
 

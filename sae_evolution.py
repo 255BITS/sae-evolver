@@ -71,7 +71,7 @@ def mutation(candidate, mutation_rate=0.01, mutation_scale=0.01, rare_change_rat
             if random.random() < mutation_rate:
                 # Randomize weight coefficient
                 mutated_weight = weight + random.gauss(0, mutation_scale)
-                mutated_layer[neuron_id] = mutated_weight
+                mutated_layer[neuron_id] = int(mutated_weight)
             elif random.random() < rare_change_rate:
                 # Rare chance to drop this neuron
                 continue
@@ -107,7 +107,7 @@ def load_candidate(file_name):
     with open(full_path, 'r') as file:
         candidate = yaml.safe_load(file)
     
-    return Candidate(layers=candidate['layers'], initial_population=True)
+    return Candidate(file_path=full_path, layers=candidate['layers'], initial_population=True)
 
 def breed(parents, mutation_rate):
     print("breed", parents)

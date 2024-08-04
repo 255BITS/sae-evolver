@@ -2,11 +2,7 @@ import sys
 import os
 import yaml
 from gemma.model_utils import steer_generate
-
-def load_yaml(file_path):
-    with open(file_path, 'r') as f:
-        data = yaml.safe_load(f)
-    return data
+from sae_evolution import load_candidate
 
 def main():
     if len(sys.argv) < 2:
@@ -15,26 +11,23 @@ def main():
 
     yaml_file = sys.argv[1]
 
-    if not os.path.exists(yaml_file):
-        print(f"Error: File {yaml_file} does not exist")
-        sys.exit(1)
-
-    data = load_yaml(yaml_file)
+    data = load_candidate(yaml_file)
     while(True):
         user_input = input("Enter your input: ")
 
         # Load candidate layers from the YAML file
-        layers = {key: value for key, value in data.items() if isinstance(value, dict)}
+        layers = {key: value for key, value in data.layers.items() if isinstance(value, dict)}
         
         
         output = steer_generate(user_input, {})
         print("Generated output without steering:")
-        print(user_input+output)
+        print('--', layers)
+        print(output)
 
         output = steer_generate(user_input, layers)
         
         print("Generated output with steering:")
-        print(user_input+output)
+        print(output)
 
 if __name__ == "__main__":
     main()
