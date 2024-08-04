@@ -1,12 +1,12 @@
 # SAE Chatbot Evolution
 
-This project uses Sparse Autoencoders (SAE) to evolve chatbots through a process of genetic algorithms and natural language processing. It leverages the Groq API for language model interactions and implements custom evolution strategies to optimize chatbot behavior based on specified criteria.
+This project uses Sparse Autoencoders (SAE) to evolve LLMs. It leverages the Groq API and implements custom evolution strategies to optimize chatbot behavior based on specified criteria.
 
 ## Features
 
-- Evolutionary algorithm for chatbot optimization
-- Integration with Groq API for language model interactions
-- Customizable criteria for chatbot evaluation
+- Evolutionary algorithm for LLM SAE optimization
+- Integration with Groq API
+- Customizable criteria for SAE candidate evaluation
 - Population-based approach with elite selection
 - Configurable evolution parameters
 
@@ -19,8 +19,8 @@ This project uses Sparse Autoencoders (SAE) to evolve chatbots through a process
 
 1. Clone this repository:
    ```
-   git clone https://github.com/yourusername/sae-chatbot-evolution.git
-   cd sae-chatbot-evolution
+   git clone https://github.com/255BITS/sae-evolver.git
+   cd sae-evolver
    ```
 
 2. Install the required dependencies:
@@ -89,9 +89,10 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## License
 
-[Specify your license here]
+MIT
 
-## Acknowledgements
+## References
 
-- Groq for providing the API for language model interactions
-- [Any other acknowledgements]
+- Groq https://groq.com/
+- JumpRELU https://arxiv.org/abs/2407.14435 
+- GemmaScope https://huggingface.co/google/gemma-scope
