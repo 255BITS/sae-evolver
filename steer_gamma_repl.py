@@ -26,13 +26,15 @@ def main():
         # Load candidate layers from the YAML file
         layers = {key: value for key, value in data.items() if isinstance(value, dict)}
         
-        print("Candidate Layers:")
-        print(layers)
         
-        output = steer_generate(prompt, layers)
+        output = steer_generate(user_input, {})
+        print("Generated output without steering:")
+        print(user_input+output)
+
+        output = steer_generate(user_input, layers)
         
-        print("Generated Output:")
-        print(output)
+        print("Generated output with steering:")
+        print(user_input+output)
 
 if __name__ == "__main__":
     main()
