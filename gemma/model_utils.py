@@ -112,17 +112,11 @@ def steer_generate(prefix, layers, special_tokens=True):
         sae = load_sae(target_layer)
         def steer_sae(mod, inputs, outputs):
             original_tensor = untuple_tensor(outputs)
-            original_input = untuple_tensor(inputs)
 
             for idx, coeff in value.items():
-                steered_encode = sae.encode(original_input)
-                steered_masked_encode = torch.zeros_like(steered_encode)
-                steered_masked_encode[:,:,idx]=steered_encode[:,:,idx]
-                steered_decode = sae.decode(steered_masked_encode)
-                #steering_vector = sae.W_dec[idx]
-                #steering_bias = sae.b_dec[idx]
-                #original_tensor[None] = original_tensor + coeff * steering_vector + coeff * steering_bias
-                original_tensor[None] = original_tensor + coeff * steered_decode
+                steering_vector = sae.W_dec[idx]
+                steering_bias = sae.b_dec[idx]
+                original_tensor[None] = original_tensor + coeff * steering_vector + coeff * steering_bias
             return outputs
         return steer_sae
     for target_layer, value in layers.items():
