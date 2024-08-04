@@ -1,5 +1,5 @@
 initial_prompts: 
   - "<text>Nebula</text><image_description>A celestial tapestry of sapphire and amethyst hues, with glittering stardust and iridescent gases that shimmer like the moon's gentle kiss on a midsummer night. In its heart, a swirling vortex of creativity and destruction, birthing new stars and worlds, as the cosmos whispers ancient secrets to those who dare to listen.</image_description>"
 output_prefix: "<text>City Skyline</text><image_description>"
-criteria: "Which of these descriptions paints a more vivid picture? The more detailed the better."
+criteria: "Which of these descriptions paints a more vivid picture for stable diffusion to generate?"
 prompt_format: "<text>USER_INPUT</text><image_description>"
