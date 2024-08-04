@@ -106,7 +106,7 @@ def untuple_tensor(x: torch.Tensor | tuple[torch.Tensor, ...]) -> torch.Tensor:
 
 def steer_generate(prefix, layers):
     lazy_load_model_and_tokenizer()
-    inputs = tokenizer(prefix, return_tensors="pt").to("cuda")
+    inputs = tokenizer(prefix, return_tensors="pt", add_special_tokens=False).to("cuda")
     handles = []
     def _steer_sae(target_layer):
         sae = load_sae(target_layer)
