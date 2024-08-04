@@ -28,7 +28,7 @@ def generate_content(candidate, prefix):
     global candidate_cache
     if candidate in candidate_cache:
         return candidate_cache[candidate]
-    candidate_cache[candidate] = "[Sample]:\n"+steer_generate(prefix, candidate.layers, special_tokens=False)+"\n[Sample]:\n"+steer_generate(prefix, candidate.layers, special_tokens=False)
+    candidate_cache[candidate] = steer_generate(prefix, candidate.layers, special_tokens=False)#+"\n[Sample]:\n"+steer_generate(prefix, candidate.layers, special_tokens=False)
     print("generated new candidate", candidate_cache[candidate])
     candidate.last_gen=candidate_cache[candidate]
     return candidate_cache[candidate]
