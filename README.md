@@ -1,6 +1,6 @@
-# SAE Evolution
+# SAE Evolver
 
-This project uses Sparse Autoencoders (SAE) and Evolutionary Algorithms to evolve solutions. It leverages the Groq API and implements custom evolution strategies to optimize chatbot behavior based on specified criteria.
+This project uses Sparse Autoencoders (SAE) and Evolutionary Algorithms to evolve selections of SAE that align towards objectives. It leverages the Groq API and implements custom evolution strategies to optimize chatbot behavior based on specified criteria.
 
 ## Features
 
