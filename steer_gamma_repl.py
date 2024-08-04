@@ -14,16 +14,22 @@ def main():
     prompt_format = yaml.safe_load(open(example_yaml, "r").read())["prompt_format"]
 
     data = load_candidate(candidate_yaml)
+    seed = 42
     while(True):
         user_input = input("Enter your input: ")
 
         prompt = prompt_format.replace("USER_INPUT", user_input)
+
+        torch.cuda.manual_seed_all(seed)
+        torch.use_deterministic_algorithms(True)
         output = steer_generate(prompt, {})
         print("Generated output without steering:")
         print("---")
         print(output)
         print("---")
 
+        torch.cuda.manual_seed_all(seed)
+        torch.use_deterministic_algorithms(True)
         output = steer_generate(prompt, data.layers)
         
         print("Generated output with steering:")
