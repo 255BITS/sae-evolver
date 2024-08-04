@@ -114,7 +114,8 @@ def steer_generate(prefix, layers, special_tokens=True):
             original_tensor = untuple_tensor(outputs)
             for idx, coeff in value.items():
                 steering_vector = sae.W_dec[idx]
-                original_tensor[None] = original_tensor + coeff * steering_vector
+                steering_bias = sae.b_dec[idx]
+                original_tensor[None] = original_tensor + coeff * steering_vector + coeff * steering_bias
             return outputs
         return steer_sae
     for target_layer, value in layers.items():
