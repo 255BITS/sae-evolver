@@ -1,5 +1,6 @@
 import sys
 import os
+import random
 import yaml
 import torch
 from gemma.model_utils import steer_generate
