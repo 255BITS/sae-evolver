@@ -6,8 +6,8 @@ def main():
     print("Values:", values)
     print("Indices:", indices)
 
-    print(steer_generate("What is the most iconic structure known to man?", {20: {10004: 300.0}}))
-    print(steer_generate("What is on your mind?", {20: {10004: 300.0}}))
+    print(steer_generate("What is the most iconic structure known to man?", {20: {10004: 200.0}}))
+    print(steer_generate("What is on your mind?", {20: {10004: 200.0}}))
 
 if __name__ == "__main__":
     main()

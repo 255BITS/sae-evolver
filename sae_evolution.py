@@ -12,11 +12,13 @@ class Candidate:
         self.initial_population = initial_population
         self.layers = layers
         self.generation = generation
+        self.last_gen = None
 
     def to_dict(self):
         return {
             "model": self.file_path,
             "generation": self.generation,
+            "last_gen": self.last_gen,
             "layers": self.layers
         }
 
@@ -64,8 +66,9 @@ def mutation(candidate, mutation_rate=0.01, mutation_scale=0.01):
     mutated_layers = {}
     for layer_name, layer in candidate.layers.items():
         if random.random() < mutation_rate:
-            mutation = torch.randn_like(layer) * mutation_scale
-            mutated_layers[layer_name] = layer + mutation
+            pass#TODO
+            #mutation = torch.randn_like(layer) * mutation_scale
+            #mutated_layers[layer_name] = layer + mutation
         else:
             mutated_layers[layer_name] = dict(layer)
     

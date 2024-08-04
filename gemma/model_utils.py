@@ -58,6 +58,8 @@ def lazy_load_model_and_tokenizer():
 
 sae_cache = {}
 def load_sae(target_layer):
+    if target_layer in sae_cache:
+        return sae_cache[target_layer]
     path_to_params = hf_hub_download(
         repo_id="google/gemma-scope-2b-pt-res",
         filename=f"layer_{target_layer}/width_16k/average_l0_71/params.npz",
@@ -68,6 +70,7 @@ def load_sae(target_layer):
     sae = JumpReLUSAE(params['W_enc'].shape[0], params['W_enc'].shape[1])
     sae.load_state_dict(pt_params)
     sae.cuda()
+    sae_cache[target_layer] = sae
     return sae
 
 def process_prompt(prompt, target_layer=6):
@@ -90,21 +93,26 @@ def untuple_tensor(x: torch.Tensor | tuple[torch.Tensor, ...]) -> torch.Tensor:
     return x[0] if isinstance(x, tuple) else x
 
 def steer_generate(prefix, layers):
-    target_layer = list(layers.keys())[0]
-    idx = list(layers[target_layer].keys())[0]
-    coeff = layers[target_layer][idx]
     inputs = tokenizer(prefix, return_tensors="pt").to("cuda")
-    def steer_sae(mod, inputs, outputs):
-        original_tensor = untuple_tensor(outputs)
-
-        #for idx, coeff in value.items():
+    handles = []
+    def _steer_sae(target_layer):
         sae = load_sae(target_layer)
-        steering_vector = sae.W_dec[idx]
-        original_tensor[None] = original_tensor + coeff * steering_vector
-        return outputs
-    handle = model.model.layers[target_layer].register_forward_hook(steer_sae)
-    result = model.generate(**inputs, max_new_tokens=32)
+        def steer_sae(mod, inputs, outputs):
+            original_tensor = untuple_tensor(outputs)
+            for idx, coeff in value.items():
 
-    handle.remove()
-    return result
+                #for idx, coeff in value.items():
+                steering_vector = sae.W_dec[idx]
+                original_tensor[None] = original_tensor + coeff * steering_vector
+            return outputs
+        return steer_sae
+    for target_layer, value in layers.items():
+        handle = model.model.layers[target_layer].register_forward_hook(_steer_sae(target_layer))
+        handles.append(handle)
+    result = model.generate(**inputs, do_sample=True, temperature=1.0, max_new_tokens=128)
+    decoded_text = tokenizer.decode(result[0])
+
+    for handle in handles:
+        handle.remove()
+    return decoded_text
 

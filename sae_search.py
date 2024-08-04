@@ -5,11 +5,22 @@ import random
 import yaml
 from pathlib import Path
 from gemma.model_utils import process_prompt, steer_generate
+import groq
+import os
 
 # Import your evolution functions here
 from sae_evolution import (
     Candidate, load_candidate, run_evolution, breed, mutation, crossover
 )
+api_key = os.getenv('GROQ_API_KEY')
+
+if api_key is None:
+    print("Error: GROQ_API_KEY environment variable is not set")
+    sys.exit(1)
+
+# Initialize the Groq client with the API key
+client = groq.Client(api_key=api_key)
+
 
 candidate_cache = {}
 
@@ -18,22 +29,39 @@ def generate_content(candidate, prefix):
     if candidate in candidate_cache:
         return candidate_cache[candidate]
     candidate_cache[candidate] = steer_generate(prefix, candidate.layers)
+    candidate.last_gen=candidate_cache[candidate]
     return candidate_cache[candidate]
 
 async def compare_candidates(candidate1, candidate2, criteria, output_prefix):
+    print("Generating candidate 1")
     gen1 = generate_content(candidate1, output_prefix)
+    print("Generating candidate 2")
     gen2 = generate_content(candidate2, output_prefix)
-    print(f"Comparing candidates based on: {criteria}")
-    print(f"Candidate 1: ```\n{gen1}\n```")
-    print(f"Candidate 2: ```\n{gen2}\n```")
+    prompt = (f"Comparing candidates based on: {criteria}")
+    prompt += (f"\nCandidate 1: ```\n{gen1}\n```")
+    prompt += (f"\nCandidate 2: ```\n{gen2}\n```")
     #TODO
-    result = input("Enter 1 if Candidate 1 better matches the criteria, else 2 if Candidate 2 better matches the critera: ")
+    prompt += "\nEnter 1 if Candidate 1 better matches the criteria, else 2 if Candidate 2 better matches the critera. Only output 1 or 2, this is automated.: "
+    chat_completion = client.chat.completions.create(
+        messages=[
+            {
+                "role": "user",
+                "content": prompt,
+            }
+        ],
+        model="llama-3.1-70b-versatile",
+        max_tokens=128
+    )
+    result = chat_completion.choices[0].message.content
+    print("--", result)
+
     return 1 if result == "1" else -1
 
 async def main(args):
     logging.basicConfig(level=logging.INFO)
     
-    random.seed(args.seed)
+    if args.seed:
+        random.seed(args.seed)
     # Load criteria file
     with open(args.criteria, 'r') as f:
         criteria_data = yaml.safe_load(f)
@@ -50,7 +78,7 @@ async def main(args):
         target_layer = 20#random.randint(19, 26)
         _, indices = process_prompt(prompt, target_layer)
         indices = random.sample(indices[0].tolist(), 3)
-        indices_map = {key: random.randint(50, 350) for key in indices}
+        indices_map = {key: random.randint(50, 200) for key in indices}
 
         layers = {target_layer: indices_map}
         file_path = f"model_{i}.yaml" #TODO save
@@ -78,7 +106,7 @@ async def main(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Run SAE evolution")
-    parser.add_argument("--seed", type=int, default=42, help="Random seed")
+    parser.add_argument("--seed", type=int, default=None, help="Random seed")
     parser.add_argument("--cycles", type=int, default=10, help="Number of evolution cycles")
     parser.add_argument("--elite", type=int, default=5, help="Number of elite candidates")
     parser.add_argument("--population", type=int, default=15, help="Population size")
