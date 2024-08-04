@@ -70,6 +70,19 @@ python sae_search.py --cycles 10 --elite 5 --population 20 --initial-population 
 3. The process repeats for the specified number of cycles.
 4. The final population is saved, and the best candidate is rendered in HTML.
 
+## Extras
+
+
+### Create an Example:
+```sh
+python3 metaprompt.py 'Expand a given word with vivid imagery'
+```
+
+#### Run Command Line REPL:
+```sh
+python3 steer_gamma_repl.py candidate examples/buick.yml
+```
+
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
