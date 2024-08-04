@@ -125,6 +125,8 @@ def steer_generate(prefix, layers, special_tokens=True):
     if not special_tokens:
         result_tokens = result_tokens[1:]
     decoded_text = tokenizer.decode(result_tokens)
+    if not special_tokens:
+        decoded_text = decoded_text.replace("<eos>", "") #todo: stop token?
 
     for handle in handles:
         handle.remove()

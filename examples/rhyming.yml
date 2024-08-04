@@ -1,5 +1,5 @@
 initial_prompts: 
   - "In a land of sweet delight, lived a poet with words so bright. She spoke in rhymes, day and night, bringing joy to all in sight."
 output_prefix: "The sky"
-criteria: "Which of these rhymes more?"
+criteria: "Which rhymes more? It must rhyme."
 prompt_format: "USER_INPUT"
