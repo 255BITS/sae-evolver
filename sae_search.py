@@ -62,7 +62,7 @@ def render_winner(candidate, criteria):
     os.makedirs('results', exist_ok=True)
     
     # Construct the HTML content
-    html_content = f"<html>\n<body>\n<p>Groq Criteria: {criteria}</p><pre>{candidate.last_gen}</pre>\n</body>\n</html>"
+    html_content = f"<html>\n<body>\n<p style='width:400px; word-wrap: break-word;white-space: pre-wrap;'>Groq Criteria: {criteria}</p><pre>{candidate.last_gen}</pre>\n</body>\n</html>"
     
     # Write the content to 'results/winner.html'
     with open('results/winner.html', 'w') as file:
