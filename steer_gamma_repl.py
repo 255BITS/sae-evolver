@@ -11,7 +11,7 @@ def main():
 
     example_yaml = sys.argv[2]
     candidate_yaml = sys.argv[1]
-    prompt_format = yaml.safe_load(example_yaml)["prompt_format"]
+    prompt_format = yaml.safe_load(open(example_yaml, "r").read())["prompt_format"]
 
     data = load_candidate(candidate_yaml)
     while(True):
