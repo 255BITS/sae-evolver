@@ -1,6 +1,6 @@
-# SAE Chatbot Evolution
+# SAE Evolution
 
-This project uses Sparse Autoencoders (SAE) to evolve LLMs. It leverages the Groq API and implements custom evolution strategies to optimize chatbot behavior based on specified criteria.
+This project uses Sparse Autoencoders (SAE) and Evolutionary Algorithms to evolve solutions. It leverages the Groq API and implements custom evolution strategies to optimize chatbot behavior based on specified criteria.
 
 ## Features
 
