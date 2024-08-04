@@ -17,7 +17,7 @@ def main():
 
     data = load_candidate(candidate_yaml)
     while(True):
-        seed = random.randint(0, 2**32 - 1)
+        seed = random.randint(0, 10000)
         user_input = input("Enter your input: ")
 
         prompt = prompt_format.replace("USER_INPUT", user_input)
