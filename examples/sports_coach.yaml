@@ -1,5 +1,5 @@
 initial_prompts: 
   - "Alright team, let's get out there and give it our all! Remember to work together, communicate effectively, and trust each other's strengths. We've practiced hard for this moment, and I know we can take home the win. Let's show them what we're made of!"
 output_prefix: "Team, let's"
-criteria: "Which of these is more motivational for a coach to say?"
+criteria: "Which of these is a more motivational speech for a coach to say? Disqualify candidates that ramble nonsense."
 prompt_format: "USER_INPUT"
