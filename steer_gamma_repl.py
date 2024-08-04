@@ -15,8 +15,8 @@ def main():
     prompt_format = yaml.safe_load(open(example_yaml, "r").read())["prompt_format"]
 
     data = load_candidate(candidate_yaml)
-    seed = 42
     while(True):
+        seed = random.randint(0, 2**32 - 1)
         user_input = input("Enter your input: ")
 
         prompt = prompt_format.replace("USER_INPUT", user_input)
