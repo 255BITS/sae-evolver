@@ -117,8 +117,7 @@ def steer_generate(prefix, layers, special_tokens=True):
             for idx, coeff in value.items():
                 steered_encode = sae.encode(original_input)
                 steered_masked_encode = torch.zeros_like(steered_encode)
-                print(steered_encode.shape)
-                steered_masked_encode[idx]=torch.ones_like(steered_masked_encode[idx])
+                steered_masked_encode[:,:,idx]=torch.ones_like(steered_masked_encode[:,:,idx])
                 steered_decode = sae.decode(steered_masked_encode)
                 #steering_vector = sae.W_dec[idx]
                 #steering_bias = sae.b_dec[idx]
