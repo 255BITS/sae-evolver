@@ -1,6 +1,7 @@
 import sys
 import os
 import yaml
+import torch
 from gemma.model_utils import steer_generate
 from sae_evolution import load_candidate
 
