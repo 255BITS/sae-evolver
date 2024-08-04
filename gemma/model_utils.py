@@ -91,7 +91,7 @@ def process_prompt(prompt, target_layer=6):
     sae = load_sae(target_layer)
 
 
-    inputs = tokenizer.encode(prompt, return_tensors="pt", add_special_tokens=False).cuda()
+    inputs = tokenizer.encode(prompt, return_tensors="pt", add_special_tokens=True).cuda()
 
     target_act = gather_residual_activations(model, target_layer, inputs)
 
@@ -106,7 +106,7 @@ def untuple_tensor(x: torch.Tensor | tuple[torch.Tensor, ...]) -> torch.Tensor:
 
 def steer_generate(prefix, layers):
     lazy_load_model_and_tokenizer()
-    inputs = tokenizer(prefix, return_tensors="pt", add_special_tokens=False).to("cuda")
+    inputs = tokenizer(prefix, return_tensors="pt", add_special_tokens=True).to("cuda")
     handles = []
     def _steer_sae(target_layer):
         sae = load_sae(target_layer)
