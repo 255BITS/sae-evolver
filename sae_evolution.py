@@ -62,7 +62,6 @@ def crossover_layers(a, b):
 
     return crossover_ab
 
-
 def mutation(candidate, mutation_rate=0.01, mutation_scale=0.01, rare_change_rate=0.001):
     mutated_layers = {}
     

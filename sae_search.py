@@ -75,7 +75,7 @@ async def main(args):
         prompt = random.choice(initial_prompts)
 
         #TODO
-        target_layer = sae_params().keys()
+        target_layer = random.choice(list(sae_params().keys()))
         _, indices = process_prompt(prompt, target_layer)
         indices = random.sample(indices[0].tolist(), 3)
         indices_map = {key: random.randint(args.coeff_start, args.coeff_end) for key in indices}

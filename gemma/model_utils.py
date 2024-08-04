@@ -59,11 +59,11 @@ def lazy_load_model_and_tokenizer():
 
 def sae_params():
     return {
-            10: {width: 16, average: 77},
-            15: {width: 16, average: 78},
-            24: {width: 16, average: 73},
-            18: {width: 16, average: 74},
-            20: {width: 16, average: 71}
+            10: {"width": 16, "average": 77},
+            15: {"width": 16, "average": 78},
+            24: {"width": 16, "average": 73},
+            18: {"width": 16, "average": 74},
+            20: {"width": 16, "average": 71}
     }
 
 sae_cache = {}
