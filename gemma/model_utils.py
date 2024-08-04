@@ -121,7 +121,10 @@ def steer_generate(prefix, layers, special_tokens=True):
         handle = model.model.layers[target_layer].register_forward_hook(_steer_sae(target_layer, value))
         handles.append(handle)
     result = model.generate(**inputs, do_sample=True, temperature=1.0, max_new_tokens=128)
-    decoded_text = tokenizer.decode(result[0])
+    result_tokens = result[0]
+    if not add_special_tokens
+        result_tokens = result_tokens[1:]
+    decoded_text = tokenizer.decode(result_tokens)
 
     for handle in handles:
         handle.remove()
