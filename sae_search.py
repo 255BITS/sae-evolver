@@ -24,19 +24,19 @@ client = groq.Client(api_key=api_key)
 
 candidate_cache = {}
 
-def generate_content(candidate, prefix):
+def generate_content(candidate, prefix, gemma_model, sae_repo_id):
     global candidate_cache
     if candidate in candidate_cache:
         return candidate_cache[candidate]
-    candidate_cache[candidate] = steer_generate(prefix, candidate.layers, special_tokens=False)#+"\n[Sample]:\n"+steer_generate(prefix, candidate.layers, special_tokens=False)
+    candidate_cache[candidate] = steer_generate(prefix, candidate.layers, special_tokens=False, model_name=gemma_model, sae_repo_id=sae_repo_id)#+"\n[Sample]:\n"+steer_generate(prefix, candidate.layers, special_tokens=False)
     candidate.last_gen=candidate_cache[candidate]
     return candidate_cache[candidate]
 
-async def compare_candidates(candidate1, candidate2, criteria, output_prefix, model):
+async def compare_candidates(candidate1, candidate2, criteria, output_prefix, model, gemma_model, sae_repo_id):
     print("Generating candidate 1", candidate1.layers)
-    gen1 = generate_content(candidate1, output_prefix)
+    gen1 = generate_content(candidate1, output_prefix, gemma_model, sae_repo_id)
     print("Generating candidate 2", candidate2.layers)
-    gen2 = generate_content(candidate2, output_prefix)
+    gen2 = generate_content(candidate2, output_prefix, gemma_model, sae_repo_id)
     prompt = (f"Comparing candidates based on: {criteria}")
     prompt += (f"\nCandidate 1: ```\n{gen1}\n```")
     prompt += (f"\nCandidate 2: ```\n{gen2}\n```")
@@ -62,13 +62,14 @@ def render_winner(candidate, criteria):
     os.makedirs('results', exist_ok=True)
     
     # Construct the HTML content
-    html_content = f"<html>\n<body>\n<p>Groq Criteria: {criteria}</p><pre style='width:400px; word-wrap: break-word;white-space: pre-wrap;'>{candidate.last_gen}</pre>\n</body>\n</html>"
+    html_content = f"<html>\n<body>\n<div style='padding:24px'><p>Groq Criteria: {criteria}</p><pre style='width:400px; word-wrap: break-word;white-space: pre-wrap;'>{candidate.last_gen}</pre>\n</div></body>\n</html>"
     
     # Write the content to 'results/winner.html'
     with open('results/winner.html', 'w') as file:
         file.write(html_content)
 
 async def main(args):
+    global candidate_cache
     logging.basicConfig(level=logging.INFO)
     
     if args.seed:
@@ -86,8 +87,8 @@ async def main(args):
         prompt = random.choice(initial_prompts)
 
         #TODO
-        target_layer = random.choice(list(sae_params().keys()))
-        _, indices = process_prompt(prompt, target_layer)
+        target_layer = random.choice(list(sae_params(args.gemma_model).keys()))
+        _, indices = process_prompt(prompt, target_layer, model_name=args.gemma_model, sae_repo_id=args.sae)
         indices = random.sample(indices[0].tolist(), 3)
         indices_map = {key: random.randint(args.coeff_start, args.coeff_end) for key in indices}
 
@@ -97,13 +98,14 @@ async def main(args):
         population.append(candidate)
     
     for cycle in range(args.cycles):
+        candidate_cache = {}
         logging.info(f"Starting cycle {cycle + 1}")
         population = await run_evolution(
             population,
             args.elite,
             args.population,
             0.1,  # mutation_rate
-            lambda c1, c2: compare_candidates(c1, c2, criteria, output_prefix, args.model)
+            lambda c1, c2: compare_candidates(c1, c2, criteria, output_prefix, args.model, args.gemma_model, args.sae)
         )
         render_winner(population[0], criteria)
         
@@ -131,6 +133,8 @@ if __name__ == "__main__":
     parser.add_argument("--initial-population", type=int, default=2, help="Initial population size")
     parser.add_argument("--criteria", type=str, default="examples/sports_coach.yaml", help="yml file created from metaprompt.py. See examples")
     parser.add_argument("--model", type=str, default="llama-3.1-70b-versatile", help="Which groq model to use")
+    parser.add_argument("--gemma-model", type=str, default="google/gemma-2-2b", help="Which gemma model to use")
+    parser.add_argument("--sae", type=str, default="google/gemma-scope-2b-pt-res", help="Which gemmascope sae repo to use")
 
     args = parser.parse_args()
     asyncio.run(main(args))

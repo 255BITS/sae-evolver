@@ -45,35 +45,40 @@ def gather_residual_activations(model, target_layer, inputs):
 
 
 
-def lazy_load_model_and_tokenizer():
+def lazy_load_model_and_tokenizer(model_name="google/gemma-2-2b"):
     global model, tokenizer
     if model is None:
         model = AutoModelForCausalLM.from_pretrained(
-            "google/gemma-2-2b",
+            model_name,
             device_map='auto',
         ).cuda()
 
     if tokenizer is None:
-        tokenizer = AutoTokenizer.from_pretrained("google/gemma-2-2b")
+        tokenizer = AutoTokenizer.from_pretrained(model_name)
 
 
-def sae_params():
-    return {
-            10: {"width": 16, "average": 77},
-            15: {"width": 16, "average": 78},
-            24: {"width": 16, "average": 73},
-            18: {"width": 16, "average": 74},
-            20: {"width": 16, "average": 71}
-    }
+def sae_params(model_name="google/gemma-2-2b"):
+    return { 
+            "google/gemma-2-2b": {
+                10: {"width": 16, "average": 77},
+                15: {"width": 16, "average": 78},
+                24: {"width": 16, "average": 73},
+                18: {"width": 16, "average": 74},
+                20: {"width": 16, "average": 71}
+            },
+            "google/gemma-2-9b": {
+                20: {"width": 16, "average": 68}
+            }
+    }[model_name]
 
 sae_cache = {}
-def load_sae(target_layer):
+def load_sae(target_layer, model_name="google/gemma-2-2b", sae_repo_id="google/gemma-scope-2b-pt-res"):
     if target_layer in sae_cache:
         return sae_cache[target_layer]
 
-    params = sae_params()[target_layer]
+    params = sae_params(model_name)[target_layer]
     path_to_params = hf_hub_download(
-        repo_id="google/gemma-scope-2b-pt-res",
+        repo_id=sae_repo_id,
         filename=f"layer_{target_layer}/width_{params['width']}k/average_l0_{params['average']}/params.npz",
         force_download=False,
     )
@@ -85,18 +90,14 @@ def load_sae(target_layer):
     sae_cache[target_layer] = sae
     return sae
 
-def process_prompt(prompt, target_layer=6):
+def process_prompt(prompt, target_layer=6, model_name="google/gemma-2-2b", sae_repo_id="google/gemma-scope-2b-pt-res"):
     # Lazy load the model, tokenizer, and sae
-    lazy_load_model_and_tokenizer()
-    sae = load_sae(target_layer)
-
-
+    lazy_load_model_and_tokenizer(model_name=model_name)
+    sae = load_sae(target_layer, model_name=model_name, sae_repo_id=sae_repo_id)
     inputs = tokenizer.encode(prompt, return_tensors="pt", add_special_tokens=True).cuda()
 
     target_act = gather_residual_activations(model, target_layer, inputs)
-
     sae_acts = sae.encode(target_act.to(torch.float32))
-
     values, indices = sae_acts.max(-1)
 
     return values, indices
@@ -104,12 +105,12 @@ def process_prompt(prompt, target_layer=6):
 def untuple_tensor(x: torch.Tensor | tuple[torch.Tensor, ...]) -> torch.Tensor:
     return x[0] if isinstance(x, tuple) else x
 
-def steer_generate(prefix, layers, special_tokens=True):
-    lazy_load_model_and_tokenizer()
+def steer_generate(prefix, layers, special_tokens=True, model_name="google/gemma-2-2b", sae_repo_id="google/gemma-scope-2b-pt-res"):
+    lazy_load_model_and_tokenizer(model_name=model_name)
     inputs = tokenizer(prefix, return_tensors="pt", add_special_tokens=True).to("cuda")
     handles = []
     def _steer_sae(target_layer, value):
-        sae = load_sae(target_layer)
+        sae = load_sae(target_layer, model_name=model_name, sae_repo_id=sae_repo_id)
         def steer_sae(mod, inputs, outputs):
             original_tensor = untuple_tensor(outputs)
 
