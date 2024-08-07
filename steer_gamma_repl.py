@@ -3,35 +3,38 @@ import os
 import random
 import yaml
 import torch
+import argparse
 from gemma.model_utils import steer_generate
 from sae_evolution import load_candidate
 
 def main():
-    if len(sys.argv) < 3:
-        print("Usage: python generate_prompt.py <candidate_yamle> <example_yaml>")
-        sys.exit(1)
+    parser = argparse.ArgumentParser(description="Generate prompts using the specified Gemma model and SAE repository.")
+    parser.add_argument("candidate_yaml", type=str, help="Path to the candidate YAML file")
+    parser.add_argument("example_yaml", type=str, help="Path to the example YAML file")
+    parser.add_argument("--gemma-model", type=str, default="google/gemma-2-2b", help="Which Gemma model to use")
+    parser.add_argument("--sae", type=str, default="google/gemma-scope-2b-pt-res", help="Which Gemmascope SAE repo to use")
+    
+    args = parser.parse_args()
 
-    example_yaml = sys.argv[2]
-    candidate_yaml = sys.argv[1]
-    prompt_format = yaml.safe_load(open(example_yaml, "r").read())["prompt_format"]
+    prompt_format = yaml.safe_load(open(args.example_yaml, "r").read())["prompt_format"]
 
-    data = load_candidate(candidate_yaml)
-    while(True):
+    data = load_candidate(args.candidate_yaml)
+    while True:
         seed = random.randint(0, 10000)
         user_input = input("Enter your input: ")
 
         prompt = prompt_format.replace("USER_INPUT", user_input)
 
         torch.cuda.manual_seed_all(seed)
-        output = steer_generate(prompt, {})
+        output = steer_generate(prompt, {}, model_name=args.gemma_model, sae_repo_id=args.sae)
         print("Generated output without steering:")
         print("---")
         print(output)
         print("---")
 
         torch.cuda.manual_seed_all(seed)
-        output = steer_generate(prompt, data.layers)
-        
+        output = steer_generate(prompt, data.layers, model_name=args.gemma_model, sae_repo_id=args.sae)
+
         print("Generated output with steering:")
         print("---")
         print(output)
