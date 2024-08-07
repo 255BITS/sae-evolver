@@ -41,28 +41,32 @@ def merge_dicts(*dicts):
                 result[key] = value.copy()
     return result
 
-def random_filter(d, fraction=0.5):
+
+def random_filter(d, fraction=0.8):
     keys = list(d.keys())
     num_to_keep = max(1, int(len(keys) * fraction))
     keys_to_keep = random.sample(keys, num_to_keep)
     return {k: d[k] for k in keys_to_keep}
 
+def merge_single_level_dicts(a, b):
+    result = a.copy()
+    for key, value in b.items():
+        if key in result:
+            result[key] = {**result[key], **value}
+        else:
+            result[key] = value
+    return result
+
 def crossover_layers(a, b):
-    # Create initial dict with the first nested entry
-    first_key = next(iter(a))
-    first_nested_key = next(iter(a[first_key]))
-    init = {first_key: {first_nested_key: a[first_key][first_nested_key]}}
+    # Merge the single-level nested dictionaries
+    combined = merge_single_level_dicts(a, b)
+    
+    # Apply random filter to the combined result
+    filtered_result = {k: random_filter(v) for k, v in combined.items()}
+    
+    return filtered_result
 
-    # Filter out half the nested entries in a and b randomly
-    ahalf = {k: random_filter(v) for k, v in a.items()}
-    bhalf = {k: random_filter(v) for k, v in b.items()}
-
-    # Perform the crossover
-    crossover_ab = merge_dicts(init, ahalf, bhalf)
-
-    return crossover_ab
-
-def mutation(candidate, mutation_rate=0.01, mutation_scale=20, rare_change_rate=0.001):
+def mutation(candidate, mutation_rate=0.01, mutation_scale=20, rare_change_rate=0.0001):
     mutated_layers = {}
     
     for layer_name, layer in candidate.layers.items():
