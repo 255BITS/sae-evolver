@@ -2,6 +2,21 @@
 
 This project uses Sparse Autoencoders (SAE) and Evolutionary Algorithms to evolve selections of SAE that align towards objectives. It leverages the Groq API and implements custom evolution strategies to optimize chatbot behavior based on specified criteria.
 
+
+<img src="logo.svg" alt="sae-evolver-logo" width="512"/>
+
+
+## About
+
+This is an open research project originally created in the AI Tinkerers group in Denver. The goal of this project
+is to use combinations of SAE to get desired behaviors from base models, which can be specified through data - see the `examples/*.yaml`
+
+### Examples
+
+* Create a chatbot from a base model without RLHF
+* Create a model that only outputs JSON without strict grammar rules
+* Anything else you can imagine - see the `examples/*.yaml`
+
 ## Features
 
 - Evolutionary algorithm for LLM SAE optimization
@@ -86,6 +101,14 @@ python3 steer_gamma_repl.py candidate examples/buick.yml
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
+
+Are you a researcher? We could use some help with studying this technique. It's available for anyone to build on. If you want to be nice reference this github repo.
+
+## Citation
+
+```
+  255labs.xyz · sae-evolver, 2024 · GitHub repository: https://github.com/255BITS/sae-evolver
+```
 
 ## License
 
