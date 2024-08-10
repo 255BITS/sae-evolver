@@ -39,5 +39,5 @@
   
   <!-- Solution -->
   <circle cx="200" cy="200" r="40" fill="#d62728" opacity="0.9"/>
-  <text x="200" y="205" font-family="Arial" font-size="14" fill="white" text-anchor="middle">sae-evolver solution</text>
+  <text x="200" y="205" font-family="Arial" font-size="14" fill="white" text-anchor="middle">sae-evolver</text>
 </svg>
