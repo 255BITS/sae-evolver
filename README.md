@@ -6,13 +6,15 @@ This project uses Sparse Autoencoders (SAE) and Evolutionary Algorithms to evolv
 
 ## About
 
-This is an open research project originally created in the AI Tinkerers group in Denver. The goal of this project is to use combinations of SAE to get desired behaviors from base models, which can be specified through data - see the `examples/*.yaml`
+The goal of this project is to use combinations of SAE to get desired behaviors from base models, which can be specified through data - see the `examples/*.yaml`
+
+Find SAE behaviours by searching the SAE combinations. There are many options and they can be combined. We create candidates and rank the results using an external LLM.
 
 ### Examples
 
 * Create a chatbot from a base model without RLHF
 * Create a model that only outputs JSON without strict grammar rules
-* Anything else you can imagine - see the `examples/*.yaml`
+* See the `examples/*.yaml`
 
 ## Features
 
